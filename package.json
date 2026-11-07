@@ -1,0 +1,24 @@
+{
+  "name": "comp_machine",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Comp Machine: a jazz practice band for LUNA (piano, walking bass, drums).",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "serve": "ua-builder serve",
+    "install-addon": "ua-builder install",
+    "pack": "ua-builder pack"
+  },
+  "devDependencies": {
+    "@uaudio/luna-builder-sdk": "file:../../../Library/Application Support/LUNA Builder SDK/plugins/ua-luna-builder",
+    "vite": "8.3.0",
+    "vitest": "5.0.1"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shawngrona/luna-comp-machine.git"
+  }
+}

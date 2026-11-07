@@ -1,0 +1,6 @@
+ua-luna-builder
+Copyright 2026 Universal Audio, Inc.
+
+This plugin and the @uaudio/luna-builder-sdk build it carries are licensed under the
+Apache License, Version 2.0. See the LICENSE file, or
+http://www.apache.org/licenses/LICENSE-2.0.

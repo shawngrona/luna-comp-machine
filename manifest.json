@@ -1,0 +1,21 @@
+{
+    "package_name": "Comp Machine",
+    "id": "io.github.shawngrona.comp_machine",
+    "title": "Comp Machine",
+    "version": "1.0.0",
+    "manufacturer": "shawngrona",
+    "contact": "shawngrona@gmail.com",
+    "description": "A jazz practice band for LUNA: pick a tune or load your own chart (MusicXML, ChordPro or text) and LUNA plays piano, walking bass and drums in any key, tempo and feel.",
+    "sdk_version": "3.1.1.44",
+    "min_luna_version": "3.1.1",
+    "engines": [
+        "luna"
+    ],
+    "html": "index.html",
+    "icon": "icon.png",
+    "target": "window",
+    "floating": true,
+    "show_with_session": false,
+    "width": 1000,
+    "height": 660
+}

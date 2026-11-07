@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Comp Machine</title>
+  <style>
+    :root { color-scheme: dark; --accent: #F7C449; --bg: #121214; --panel: #1b1b20; --line: #2c2c34; --muted: #8a8a94; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body { height: 100%; }
+    body { margin: 0; background: var(--bg); color: #ddd; font: 13px -apple-system, Helvetica, sans-serif; display: grid; grid-template-columns: 250px 1fr; -webkit-user-select: none; user-select: none; }
+    textarea, input[type="text"], input[type="search"] { -webkit-user-select: text; user-select: text; }
+    button, select, input { font: inherit; color: #ddd; }
+    button { background: #26262e; border: 1px solid #3a3a44; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+    button:hover { border-color: #555; }
+    button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+    button.on { background: #2f7d4f; border-color: #3fa66a; color: #fff; }
+    select, input[type="number"], input[type="search"], textarea { background: #1f1f25; border: 1px solid #3a3a44; border-radius: 6px; padding: 5px 8px; }
+    aside { border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+    aside h1 { margin: 0; padding: 14px 14px 4px; font-size: 16px; letter-spacing: .04em; }
+    aside .sub { padding: 0 14px 10px; color: var(--muted); font-size: 11px; }
+    .row { display: flex; gap: 6px; margin: 0 12px 8px; }
+    #search { flex: 1; min-width: 0; }
+    .group { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; padding: 10px 8px 4px; }
+    .tune .rm { margin-left: 4px; color: var(--muted); padding: 0 4px; border-radius: 4px; }
+    .tune .rm:hover { color: #fff; background: #44444e; }
+    .tune .t { flex: 1; }
+    body.dropping::after { content: 'Drop chart files to add them'; position: fixed; inset: 10px; display: flex; align-items: center; justify-content: center; border: 2px dashed var(--accent); border-radius: 12px; background: rgba(18,18,20,.88); color: var(--accent); font-size: 18px; font-weight: 600; z-index: 10; }
+    body.laying-out #chart .bar { opacity: .55; }
+    #tunes { overflow: auto; padding: 0 8px 12px; display: flex; flex-direction: column; gap: 2px; }
+    .tune { display: flex; justify-content: space-between; gap: 8px; text-align: left; background: none; border: 1px solid transparent; padding: 7px 8px; }
+    .tune:hover { background: #1d1d23; }
+    .tune.on { background: #26262e; border-color: #3a3a44; }
+    .tune .k { color: var(--muted); font-size: 11px; }
+    main { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+    .top { display: flex; align-items: baseline; gap: 12px; padding: 14px 18px 6px; }
+    #title { margin: 0; font-size: 20px; }
+    #subtitle { color: var(--muted); }
+    #chorus { margin-left: auto; color: var(--accent); font-weight: 600; }
+    .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding: 6px 18px 10px; border-bottom: 1px solid var(--line); }
+    .ctl { display: flex; align-items: center; gap: 6px; }
+    .ctl > span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+    #tempo { width: 58px; }
+    #tempo-range { width: 110px; }
+    #choruses { width: 48px; }
+    .parts label { display: flex; align-items: center; gap: 4px; }
+    .actions { display: flex; gap: 8px; align-items: center; padding: 10px 18px; }
+    #play { min-width: 76px; }
+    #dirty { color: var(--accent); font-size: 12px; }
+    #custom-box { padding: 0 18px 10px; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: start; }
+    #custom { width: 100%; height: 74px; font: 13px Menlo, monospace; resize: vertical; }
+    #custom-box .hint { color: var(--muted); font-size: 11px; grid-column: span 2; }
+    #chart { flex: 1; overflow: auto; padding: 4px 18px 18px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; align-content: start; }
+    .sec { grid-column: 1 / -1; margin-top: 8px; color: var(--accent); font-weight: 700; font-size: 12px; letter-spacing: .08em; }
+    .bar { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; min-height: 52px; display: flex; align-items: center; justify-content: space-around; font: 600 17px -apple-system, Helvetica; padding: 0 6px; }
+    .bar.ghost { visibility: hidden; }
+    .bar.now { background: #3a3020; border-color: var(--accent); color: #fff; box-shadow: 0 0 0 1px var(--accent) inset; }
+    .err { grid-column: 1 / -1; color: #ff8a8a; padding: 10px 0; }
+    footer { border-top: 1px solid var(--line); padding: 8px 18px; color: var(--muted); font-size: 12px; min-height: 34px; }
+    #status.warn { color: var(--accent); }
+    body.busy button, body.busy select, body.busy input { pointer-events: none; opacity: .6; }
+  </style>
+</head>
+<body>
+  <aside>
+    <h1>Comp Machine</h1>
+    <div class="sub">Piano, bass and drums in LUNA. Chord changes only.</div>
+    <div class="row"><input id="search" type="search" placeholder="Find a tune"><button id="upload" title="Add charts from a file: MusicXML (.musicxml, .mxl, from MuseScore and other notation apps), ChordPro grids (.cho) or text charts (.txt). You can also drop files anywhere on this window.">Upload...</button></div>
+    <input id="file" type="file" accept=".musicxml,.mxl,.xml,.cho,.chopro,.chordpro,.crd,.pro,.txt,.text" multiple hidden>
+    <div id="tunes"></div>
+  </aside>
+  <main>
+    <div class="top">
+      <h2 id="title"></h2>
+      <span id="subtitle"></span>
+      <span id="chorus"></span>
+    </div>
+    <div class="controls">
+      <label class="ctl"><span>Key</span><select id="key"></select></label>
+      <div class="ctl"><span>Tempo</span>
+        <button id="tempo-down" title="5 BPM slower">&minus;</button>
+        <input id="tempo" type="number" min="40" max="320">
+        <button id="tempo-up" title="5 BPM faster">+</button>
+        <input id="tempo-range" type="range" min="40" max="320">
+      </div>
+      <label class="ctl"><span>Feel</span>
+        <select id="style">
+          <option value="swing">Medium swing</option>
+          <option value="two">Two-feel</option>
+          <option value="ballad">Ballad</option>
+          <option value="bossa">Bossa nova</option>
+        </select>
+      </label>
+      <label class="ctl"><span>Piano</span>
+        <select id="voicing">
+          <option value="rootless">Rootless voicings</option>
+          <option value="shell">Shells (sparse)</option>
+        </select>
+      </label>
+      <label class="ctl"><span>Choruses</span><input id="choruses" type="number" min="1" max="12"></label>
+      <div class="ctl parts"><span>Band</span>
+        <label><input type="checkbox" id="part-piano"> Piano</label>
+        <label><input type="checkbox" id="part-bass"> Bass</label>
+        <label><input type="checkbox" id="part-drums"> Drums</label>
+      </div>
+      <label class="ctl" title="After the first chorus the band drops out for 4 bars at a time (a quiet hi-hat keeps the pulse). Keep the form going; the chart stops highlighting while they are out."><input type="checkbox" id="layout"> Lay out</label>
+    </div>
+    <div id="custom-box" hidden>
+      <textarea id="custom" spellcheck="false"></textarea>
+      <label class="ctl"><span>Written in</span>
+        <select id="custom-key">
+          <option>C</option><option>Db</option><option>D</option><option>Eb</option><option>E</option><option>F</option>
+          <option>Gb</option><option>G</option><option>Ab</option><option>A</option><option>Bb</option><option>B</option>
+          <option>Cm</option><option>C#m</option><option>Dm</option><option>Ebm</option><option>Em</option><option>Fm</option>
+          <option>F#m</option><option>Gm</option><option>G#m</option><option>Am</option><option>Bbm</option><option>Bm</option>
+        </select>
+      </label>
+      <div class="hint">Bars between | , chords split the bar evenly, % repeats the bar. Start a line with "A:" to name a section.
+        A dot holds the chord a beat: | Dm7 . . G7 | is three beats and one. Chords: maj7 6 m7 m6 m7b5 dim7 7 7alt 7#11 7#5 7sus.
+        Upload also takes MusicXML (MuseScore, Dorico, Sibelius...) and ChordPro grids; see CHART-FORMAT.md.</div>
+    </div>
+    <div class="actions">
+      <button id="load" class="primary">Load into LUNA</button>
+      <button id="play">Play</button>
+      <button id="variation" title="Same tune, new comping and bass lines">New variation</button>
+      <span id="dirty" hidden>Settings changed: Play or Load to update LUNA</span>
+    </div>
+    <div id="chart"></div>
+    <footer><span id="status">Connecting to LUNA...</span></footer>
+  </main>
+  <script src="vendor/luna.global.js"></script>
+  <script src="tunes.js"></script>
+  <script src="logic.js"></script>
+  <script src="formats.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

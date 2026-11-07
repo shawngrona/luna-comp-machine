@@ -1,0 +1,16 @@
+# Example chart file for the Comp Machine. Upload it, or drop it on the window.
+# The format is described in CHART-FORMAT.md. A line of --- starts the next chart.
+
+Title: Minor Swing Drill
+Key: Am
+Tempo: 180
+Feel: swing
+A: | Am6 | % | Dm6 | % | E7 | % | Am6 | % |
+B: | Dm6 | % | Am6 | % | Bm7b5 . . E7alt | % | Am6 | Bm7b5 E7alt |
+---
+Title: Bossa ii-V Workout
+Key: C
+Tempo: 140
+Feel: bossa
+A: | Dm7 | G7 | Cmaj7 | % | Cm7 | F7 | Bbmaj7 | % |
+B: | Bbm7 | Eb7 | Abmaj7 | % | Abm7 Db7 | Gbmaj7 | Em7b5 . . A7alt | Dm7 G7 |
